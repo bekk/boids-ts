@@ -7,9 +7,9 @@ export function createUi(parameters: PersistedParameters) {
     document.querySelector("#sliders") as HTMLElement
   );
   factory.create("Number of boids", 0, 2000, 100, "numBoids");
-  factory.create("Number of predators", 0, 50, 1, "numPredators");
-  factory.create("Boid min speed", 0, 1000, 10, "minSpeed");
   factory.create("Boid max speed", 0, 1000, 10, "maxSpeed");
+  factory.create("Number of predators", 0, 50, 1, "numPredators");
+  factory.create("Predator max speed", 0, 1000, 10, "predatorSpeed");
 
   factory.createColumn();
   // minVerdi på radius må være større enn 0 for å unngå deling på 0

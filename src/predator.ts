@@ -1,6 +1,6 @@
 import type { Boid } from "./boids";
 import { clamp } from "./utils/math";
-import type { Vector2 } from "./utils/vector2";
+import { Vector2 } from "./utils/vector2";
 import type { World } from "./world";
 
 /**
@@ -71,7 +71,14 @@ export class Predator {
       this.world.parameters.value.predatorSpeed / this.turnRadius;
     const maxTurnAngle = angularVelocity * deltaTime;
 
-    const angleToPrey = this.velocity.angle(toPrey);
+    // må null-sjekke velocity, hvis ikke kommer man seg aldri vekk fra (0,0)
+    // bruker (1, 0) som fallback, for det stemmer overens med hvordan det ser ut visuelt
+    const currentDirection =
+      this.velocity.length() > 0
+        ? this.velocity.normalize()
+        : new Vector2(1, 0);
+    const desiredDirection = toPrey.normalize();
+    const angleToPrey = currentDirection.angle(desiredDirection);
     const clampedTurnAngle = clamp(angleToPrey, -maxTurnAngle, maxTurnAngle);
 
     this.velocity = this.velocity
