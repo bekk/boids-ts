@@ -4,6 +4,7 @@ import {
 } from "./boidCollection";
 import { calculateBoidForces, type Boid } from "./boids";
 import { Parameters } from "./parameters";
+import { clamp } from "./utils/math";
 import { Vector2 } from "./vector2";
 
 export class World {
@@ -46,8 +47,8 @@ export class World {
     });
     this.boids.forEach((boid) => {
       boid.position = boid.position.add(boid.velocity);
-      boid.position.x = (boid.position.x + this.width) % this.width;
-      boid.position.y = (boid.position.y + this.height) % this.height;
+      boid.position.x = clamp(boid.position.x, 0, this.width);
+      boid.position.y = clamp(boid.position.y, 0, this.height);
     });
   }
 
