@@ -77,7 +77,7 @@ function separationForce(
     const direction = boid.position.sub(neighbor.position);
     const relativeDistance =
       (collisionRadius - direction.length()) / collisionRadius;
-    return direction.normalize().mul(relativeDistance);
+    return direction.withLength(relativeDistance);
   }
 
   return neighbors
@@ -99,7 +99,7 @@ function predatorAvoidanceForce(
     const distance = toPredator.length();
     if (distance < safeRadius) {
       const strength = (safeRadius - distance) / safeRadius;
-      return toPredator.normalize().mul(strength);
+      return toPredator.withLength(strength);
     } else {
       return Vector2.zero;
     }
@@ -127,7 +127,7 @@ function mouseAttractionForce(
     return Vector2.zero;
   }
   const strength = 1 - distance / parameters.mouseRadius;
-  return toMouse.normalize().mul(strength);
+  return toMouse.withLength(strength);
 }
 
 function wallAvoidanceForce(boid: Boid, world: World): Vector2 {

@@ -158,6 +158,12 @@ export class Vector2 {
       Math.min(Math.max(this.y, min.y), max.y)
     );
   }
+  /** Returnerer en ny Vector2 med samme retning som denne vektoren, men med en spesifisert lengde.
+   * @param length - ønsket lengde på den nye vektoren
+   */
+  withLength(length: number): Vector2 {
+    return this.normalize().mul(length);
+  }
   /** Returnerer en strengrepresentasjon av vektoren i formatet `(x, y)` */
   toString(): string {
     return `(${this.x}, ${this.y})`;

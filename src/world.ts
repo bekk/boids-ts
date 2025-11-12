@@ -79,7 +79,7 @@ export class World {
         this.parameters.value.minSpeed,
         maxSpeed
       );
-      boid.velocity = boid.velocity.normalize().mul(desiredSpeed);
+      boid.velocity = boid.velocity.withLength(desiredSpeed);
     });
 
     this.boids.forEach((boid) => {
