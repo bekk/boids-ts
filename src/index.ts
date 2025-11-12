@@ -1,5 +1,6 @@
 import type { Boid } from "./boids";
 import { createUi } from "./createUi";
+import type { Predator } from "./predator";
 import "./style.css";
 import { nonNegativeRollingIntervalTimer } from "./timer";
 import { clamp } from "./utils/math";
@@ -47,7 +48,9 @@ function render(
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D
 ) {
-  const deltaTime = (timeInMs - lastTime) / 1000 || 0.016;
+  const actualDeltaTime = (timeInMs - lastTime) / 1000;
+  // clamp deltaTime for å unngå store hopp ved f.eks. fanebytte eller debugging
+  const deltaTime = clamp(actualDeltaTime, 0.001, 0.1);
   timer.mark();
 
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -59,6 +62,9 @@ function render(
   world.update(deltaTime);
   world.boids.forEach((boid) => {
     drawBoid(ctx, boid);
+  });
+  world.predators.forEach((predator) => {
+    drawPredator(ctx, predator);
   });
   drawMouseAttractionArea(ctx, world);
   lastTime = timeInMs;
@@ -75,6 +81,21 @@ function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
   ctx.moveTo(0, 0);
   ctx.lineTo(-12, 5);
   ctx.lineTo(-12, -5);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPredator(ctx: CanvasRenderingContext2D, predator: Predator) {
+  const position = predator.position;
+  const direction = predator.velocity.normalize();
+  ctx.save();
+  ctx.translate(position.x, position.y);
+  ctx.rotate(direction.angle());
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-16, 8);
+  ctx.lineTo(-16, -8);
   ctx.fill();
   ctx.restore();
 }

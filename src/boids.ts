@@ -1,4 +1,5 @@
 import type { Parameters } from "./parameters";
+import type { Predator } from "./predator";
 import { Vector2 } from "./vector2";
 
 export interface BoidCollection {
@@ -15,6 +16,7 @@ export interface Boid {
 export function calculateBoidForces(
   boid: Boid,
   allBoids: BoidCollection,
+  predators: Predator[],
   parameters: Parameters,
   mousePosition: Vector2 | null
 ): Vector2 {
@@ -34,6 +36,7 @@ export function calculateBoidForces(
         parameters.mouseAttractionWeight
       )
     )
+    .add(calculatePredatorAvoidanceForce(boid, predators, 100).mul(5))
     .mul(parameters.totalForceWeight);
 }
 
@@ -84,6 +87,33 @@ function calculateSeparationForce(
   return neighbors
     .map(forceFromNeighbor)
     .reduce((acc, force) => acc.add(force), new Vector2(0, 0));
+}
+
+function calculatePredatorAvoidanceForce(
+  boid: Boid,
+  predators: Boid[],
+  safeRadius: number
+): Vector2 {
+  if (predators.length === 0) {
+    return Vector2.zero;
+  }
+
+  function forceFromPredator(predator: Boid): Vector2 {
+    const toPredator = boid.position.sub(predator.position);
+    const distance = toPredator.length();
+    if (distance < safeRadius) {
+      const strength = (safeRadius - distance) / safeRadius;
+      return toPredator.normalize().mul(strength);
+    } else {
+      return Vector2.zero;
+    }
+  }
+
+  const avoidanceForce = predators
+    .map(forceFromPredator)
+    .reduce((acc, force) => acc.add(force), Vector2.zero);
+
+  return avoidanceForce;
 }
 
 function calculateTurningForce(boid: Boid): Vector2 {

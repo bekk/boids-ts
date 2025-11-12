@@ -1,6 +1,7 @@
-import { naiveBoidCollection } from "./boidCollection";
+import { NaiveBoidCollection } from "./boidCollection";
 import { calculateBoidForces, type Boid, type BoidCollection } from "./boids";
 import { PersistedParameters } from "./parameters";
+import { Predator } from "./predator";
 import { clamp } from "./utils/math";
 import { Vector2 } from "./vector2";
 
@@ -8,6 +9,7 @@ export class World {
   width: number;
   height: number;
   boids: Boid[];
+  predators: Predator[];
   collection: BoidCollection;
   mousePosition: Vector2 | null = null;
   parameters: PersistedParameters;
@@ -25,9 +27,22 @@ export class World {
     this.boids = Array.from({ length: this.parameters.value.numBoids }, () =>
       this.createBoid()
     );
-    this.collection = naiveBoidCollection(
+    this.collection = new NaiveBoidCollection(
       this.boids,
       this.parameters.value.neighborRadius
+    );
+
+    this.predators = Array.from({ length: 5 }, () => this.createPredator());
+  }
+
+  private createPredator(): Predator {
+    const speed = 100;
+    return new Predator(
+      new Vector2(Math.random() * this.width, Math.random() * this.height),
+      new Vector2(Math.random() - 0.5, Math.random() - 0.5)
+        .normalize()
+        .mul(speed),
+      this
     );
   }
 
@@ -39,6 +54,10 @@ export class World {
       3. oppdater posisjon basert på hastighet
      */
 
+    this.predators.forEach((predator) => {
+      predator.update(deltaTime);
+    });
+
     /* Beregn krefter og oppdater hastighet
     Vi kan trygt gjøre dette i samme løkke, fordi ingen krefter er påvirket av boid.velocity
     boid.position må oppdateres i egen løkke, for å unngå blanding av gamle og nye verdier */
@@ -46,6 +65,7 @@ export class World {
       const force = calculateBoidForces(
         boid,
         this.collection,
+        this.predators,
         this.parameters.value,
         this.mousePosition
       );

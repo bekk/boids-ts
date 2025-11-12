@@ -1,106 +1,110 @@
 import type { Boid, BoidCollection } from "./boids";
 import type { Vector2 } from "./vector2";
 
-export function naiveBoidCollection(
-  boids: Boid[],
-  detectionRadius: number
-): BoidCollection {
-  let detectionRadiusSq = detectionRadius * detectionRadius;
-  function isInDetectionArea(boid: Boid, other: Boid): boolean {
+export class NaiveBoidCollection implements BoidCollection {
+  private _boids: Boid[];
+  private _detectionRadiusSq: number;
+
+  constructor(boids: Boid[], detectionRadius: number) {
+    this._boids = boids;
+    this._detectionRadiusSq = detectionRadius * detectionRadius;
+  }
+
+  private isInDetectionArea(boid: Boid, other: Boid): boolean {
     const vectorToOther = other.position.sub(boid.position);
-    return vectorToOther.lengthSquared() <= detectionRadiusSq;
+    return vectorToOther.lengthSquared() <= this._detectionRadiusSq;
   }
 
-  return {
-    getNeighbors(boid: Boid): Boid[] {
-      return boids.filter(
-        (other) => other !== boid && isInDetectionArea(boid, other)
-      );
-    },
-    setDetectionRadius(radius: number): void {
-      detectionRadiusSq = radius * radius;
-    },
-    setBoids(newBoids: Boid[]): void {
-      boids = newBoids;
-    },
-  };
+  getNeighbors(boid: Boid): Boid[] {
+    return this._boids.filter(
+      (other) => other !== boid && this.isInDetectionArea(boid, other)
+    );
+  }
+  setDetectionRadius(radius: number): void {
+    this._detectionRadiusSq = radius * radius;
+  }
+  setBoids(newBoids: Boid[]): void {
+    this._boids = newBoids;
+  }
 }
 
-export interface SpatialHashBoidCollection extends BoidCollection {
-  buildGrid(): void;
-}
+class SpatialHashBoidCollection implements BoidCollection {
+  private _boids: Boid[];
+  private _detectionRadius2: number;
+  private cellSize: number;
+  private cols: number;
+  private rows: number;
+  private grid: number[];
+  private next: number[];
 
-export function spatialHashBoidCollection(
-  width: number,
-  height: number,
-  boids: Boid[],
-  detectionRadius: number
-): SpatialHashBoidCollection {
-  let _boids = boids;
-  let _detectionRadius2 = detectionRadius * detectionRadius;
-  const cellSize = detectionRadius;
-  const cols = Math.ceil(width / cellSize);
-  const rows = Math.ceil(height / cellSize);
+  constructor(
+    width: number,
+    height: number,
+    boids: Boid[],
+    detectionRadius: number
+  ) {
+    this._boids = boids;
+    this.cellSize = detectionRadius;
+    this.cols = Math.ceil(width / this.cellSize);
+    this.rows = Math.ceil(height / this.cellSize);
 
-  let grid = new Array(cols * rows).fill(-1);
-  let next = new Array(_boids.length).fill(-1);
-
-  function hashPosition(position: Vector2): number {
-    const col = Math.floor(position.x / cellSize) % cols;
-    const row = Math.floor(position.y / cellSize) % rows;
-    return row * cols + col;
+    this.grid = new Array(this.cols * this.rows).fill(-1);
+    this.next = new Array(boids.length).fill(-1);
+    this._detectionRadius2 = detectionRadius * detectionRadius;
   }
 
-  function buildGrid() {
-    grid.fill(-1);
-    next.fill(-1);
-    boids.forEach((boid, index) => {
-      const hash = hashPosition(boid.position);
-      next[index] = grid[hash];
-      grid[hash] = index;
+  private hashPosition(position: Vector2): number {
+    const col = Math.floor(position.x / this.cellSize) % this.cols;
+    const row = Math.floor(position.y / this.cellSize) % this.rows;
+    return row * this.cols + col;
+  }
+
+  public buildGrid() {
+    this.grid.fill(-1);
+    this.next.fill(-1);
+    this._boids.forEach((boid, index) => {
+      const hash = this.hashPosition(boid.position);
+      this.next[index] = this.grid[hash];
+      this.grid[hash] = index;
     });
   }
 
-  function isInDetectionArea(boid: Boid, other: Boid): boolean {
+  private isInDetectionArea(boid: Boid, other: Boid): boolean {
     const vectorToOther = other.position.sub(boid.position);
-    return vectorToOther.lengthSquared() <= _detectionRadius2;
+    return vectorToOther.lengthSquared() <= this._detectionRadius2;
   }
 
-  function getNeighbors(boid: Boid): Boid[] {
+  public getNeighbors(boid: Boid): Boid[] {
     const neighbors: Boid[] = [];
-    const baseHash = hashPosition(boid.position);
-    const baseCol = baseHash % cols;
-    const baseRow = Math.floor(baseHash / cols);
+    const baseHash = this.hashPosition(boid.position);
+    const baseCol = baseHash % this.cols;
+    const baseRow = Math.floor(baseHash / this.cols);
 
     const minRow = Math.max(0, baseRow - 1);
-    const maxRow = Math.min(rows - 1, baseRow + 1);
+    const maxRow = Math.min(this.rows - 1, baseRow + 1);
     const minCol = Math.max(0, baseCol - 1);
-    const maxCol = Math.min(cols - 1, baseCol + 1);
+    const maxCol = Math.min(this.cols - 1, baseCol + 1);
 
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        const hash = row * cols + col;
-        let index = grid[hash];
+        const hash = row * this.cols + col;
+        let index = this.grid[hash];
         while (index !== -1) {
-          const otherBoid = boids[index];
-          if (otherBoid !== boid && isInDetectionArea(boid, otherBoid)) {
+          const otherBoid = this._boids[index];
+          if (otherBoid !== boid && this.isInDetectionArea(boid, otherBoid)) {
             neighbors.push(otherBoid);
           }
-          index = next[index];
+          index = this.next[index];
         }
       }
     }
 
     return neighbors;
   }
-  return {
-    buildGrid,
-    getNeighbors,
-    setDetectionRadius(radius: number): void {
-      _detectionRadius2 = radius * radius;
-    },
-    setBoids(boids: Boid[]): void {
-      _boids = boids;
-    },
-  };
+  setDetectionRadius(radius: number): void {
+    this._detectionRadius2 = radius * radius;
+  }
+  setBoids(boids: Boid[]): void {
+    this._boids = boids;
+  }
 }
