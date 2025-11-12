@@ -1,5 +1,5 @@
 import { createSlider } from "./createSliders";
-import type { ParameterName, PersistedParameters } from "./parameters";
+import type { ParameterName, PersistedParameters } from "../parameters";
 
 export function createUi(parameters: PersistedParameters) {
   const factory = new SliderFactory(
