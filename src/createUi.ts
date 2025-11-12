@@ -6,10 +6,11 @@ export function createUi(parameters: PersistedParameters) {
     parameters,
     document.querySelector("#sliders") as HTMLElement
   );
-  factory.create("Number of Boids", 100, 2000, 100, "numBoids");
+  factory.create("Number of Boids", 0, 2000, 100, "numBoids");
   factory.create("Number of Predators", 0, 50, 1, "numPredators");
-  factory.create("Neighbor Radius", 5, 300, 5, "neighborRadius");
-  factory.create("Collision Radius", 5, 300, 5, "collisionRadius");
+  // minVerdi på radius må være større enn 0 for å unngå deling på 0
+  factory.create("Neighbor Radius", 5, 100, 5, "neighborRadius");
+  factory.create("Collision Radius", 5, 100, 5, "collisionRadius");
   factory.create("Boid min Speed", 0, 1000, 10, "minSpeed");
   factory.create("Boid max Speed", 0, 1000, 10, "maxSpeed");
   factory.create("Separation Weight", 0, 5, 0.1, "separationWeight");

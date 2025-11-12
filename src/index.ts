@@ -20,6 +20,7 @@ function setupCanvas() {
       if (world.mousePosition === null) return;
       const targetValue =
         world.parameters.value.mouseRadius + event.deltaY * 0.2;
+      // radius må være større enn 0 for å unngå deling på 0-feil
       world.parameters.setParameter("mouseRadius", clamp(targetValue, 10, 500));
       event.preventDefault();
       event.stopPropagation();
