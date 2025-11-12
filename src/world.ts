@@ -70,8 +70,11 @@ export class World {
       // sett lengden av velocity til å være mellom minSpeed og maxSpeed etter å ha lagt til kraften
       const speed = boid.velocity.length();
       const maxSpeed = this.parameters.value.maxSpeed;
-      const minSpeed = this.parameters.value.minSpeed;
-      const desiredSpeed = clamp(speed, minSpeed, maxSpeed);
+      const desiredSpeed = clamp(
+        speed,
+        this.parameters.value.minSpeed,
+        maxSpeed
+      );
       boid.velocity = boid.velocity.normalize().mul(desiredSpeed);
     });
 

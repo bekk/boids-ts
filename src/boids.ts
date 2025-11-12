@@ -23,14 +23,14 @@ export function calculateBoidForces(boid: Boid, world: World): Vector2 {
         boid,
         world.predators,
         parameters.neighborRadius
-      ).mul(5)
+      ).mul(parameters.predatorAvoidanceWeight)
     )
     .add(
       mouseAttractionForce(boid, world.mousePosition, parameters).mul(
         parameters.mouseAttractionWeight
       )
     )
-    .add(wallAvoidanceForce(boid, world).mul(parameters.turningWeight))
+    .add(wallAvoidanceForce(boid, world).mul(parameters.wallAvoidanceWeight))
     .mul(parameters.totalForceWeight);
 }
 
@@ -131,7 +131,7 @@ function mouseAttractionForce(
 }
 
 function wallAvoidanceForce(boid: Boid, world: World): Vector2 {
-  const margin = 100; // predict 0.5 second ahead
+  const margin = 20; // predict 0.5 second ahead
 
   const force = Vector2.zero;
 

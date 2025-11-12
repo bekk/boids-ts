@@ -3,7 +3,8 @@ export interface Parameters {
   cohesionWeight: number;
   alignmentWeight: number;
   separationWeight: number;
-  turningWeight: number;
+  predatorAvoidanceWeight: number;
+  wallAvoidanceWeight: number;
   mouseAttractionWeight: number;
   neighborRadius: number;
   collisionRadius: number;
@@ -25,7 +26,8 @@ const defaultParameters: Parameters = {
   cohesionWeight: 1,
   alignmentWeight: 1,
   separationWeight: 1,
-  turningWeight: 1,
+  predatorAvoidanceWeight: 5,
+  wallAvoidanceWeight: 5,
   mouseAttractionWeight: 5,
   totalForceWeight: 5_000,
   neighborRadius: 50,
