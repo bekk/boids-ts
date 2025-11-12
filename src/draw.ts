@@ -5,6 +5,7 @@ import type { World } from "./world";
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private world: World;
+
   constructor(ctx: CanvasRenderingContext2D, world: World) {
     this.ctx = ctx;
     this.world = world;

@@ -144,19 +144,19 @@ describe("angle()", () => {});
 describe("angle(vector)", () => {
   test("Angle to self should be 0", () => {
     const v = new Vector2(1, 0);
-    expect(v.angle(v)).toBeCloseTo(0);
+    expect(v.angleTo(v)).toBeCloseTo(0);
   });
 
   test("Angle between orthogonal vectors should be π/2", () => {
     const v1 = new Vector2(2, 3);
     const v2 = new Vector2(-3, 2);
-    expect(v1.angle(v2)).toBeCloseTo(Math.PI / 2);
+    expect(v1.angleTo(v2)).toBeCloseTo(Math.PI / 2);
   });
 
   test("Angle between opposite vectors should be π", () => {
     const v1 = new Vector2(1, 1);
     const v2 = new Vector2(-1, -1);
-    expect(v1.angle(v2)).toBeCloseTo(Math.PI);
+    expect(v1.angleTo(v2)).toBeCloseTo(Math.PI);
   });
 });
 describe("rotate(radians)", () => {});

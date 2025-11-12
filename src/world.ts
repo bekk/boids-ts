@@ -64,7 +64,8 @@ export class World {
 
     /* Beregn krefter og oppdater hastighet
     Vi kan trygt gjøre dette i samme løkke, fordi ingen krefter er påvirket av boid.velocity
-    boid.position må oppdateres i egen løkke, for å unngå blanding av gamle og nye verdier */
+
+    boid.position må oppdateres i egen løkke, for å unngå at boids leser av nye posisjoner fra naboene sine*/
     this.boids.forEach((boid) => {
       const force = calculateBoidForces(boid, this);
 

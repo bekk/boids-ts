@@ -111,16 +111,13 @@ export class Vector2 {
   /** Returnerer vinkelen i radianer mellom denne vektoren og en annen vektor. \
    * @param v - den andre vektoren
    */
-  angle(v: Vector2): number;
+  angleTo(v: Vector2): number {
+    return Math.atan2(this.x * v.y - this.y * v.x, this.dot(v));
+  }
   /** Returnerer vinkelen i radianer til denne vektoren i forhold til den positive x-aksen, som tilsvarer vektoren `(1, 0)`.
    */
-  angle(): number;
-  angle(param?: Vector2): number {
-    if (param) {
-      return Math.atan2(this.x * param.y - this.y * param.x, this.dot(param));
-    } else {
-      return Math.atan2(this.y, this.x);
-    }
+  angle(): number {
+    return Math.atan2(this.y, this.x);
   }
   /** Returnerer en ny Vector2 som er denne vektoren rotert med en gitt vinkel i radianer.
    * @param angle - vinkelen i radianer som vektoren skal roteres med

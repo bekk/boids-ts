@@ -78,7 +78,7 @@ export class Predator {
         ? this.velocity.normalize()
         : new Vector2(1, 0);
     const desiredDirection = toPrey.normalize();
-    const angleToPrey = currentDirection.angle(desiredDirection);
+    const angleToPrey = currentDirection.angleTo(desiredDirection);
     const clampedTurnAngle = clamp(angleToPrey, -maxTurnAngle, maxTurnAngle);
 
     this.velocity = this.velocity
