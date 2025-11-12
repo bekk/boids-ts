@@ -13,7 +13,6 @@ export interface BoidCollection {
   setBoids(boids: Boid[]): void;
   getNeighbors(boid: Boid): Boid[];
   setDetectionRadius(radius: number): void;
-  setDetectionAngle(angle: number): void;
 }
 
 export interface Boid {

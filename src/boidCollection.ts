@@ -3,16 +3,12 @@ import type { Vector2 } from "./vector2";
 
 export function naiveBoidCollection(
   boids: Boid[],
-  detectionRadius: number,
-  detectionAngle: number
+  detectionRadius: number
 ): BoidCollection {
+  const detectionRadiusSq = detectionRadius * detectionRadius;
   function isInDetectionArea(boid: Boid, other: Boid): boolean {
     const vectorToOther = other.position.sub(boid.position);
-    if (vectorToOther.length() > detectionRadius) {
-      return false;
-    }
-    const angle = boid.velocity.angle(vectorToOther);
-    return Math.abs(angle) <= detectionAngle / 2;
+    return vectorToOther.lengthSquared() <= detectionRadiusSq;
   }
 
   return {
@@ -23,9 +19,6 @@ export function naiveBoidCollection(
     },
     setDetectionRadius(radius: number): void {
       detectionRadius = radius;
-    },
-    setDetectionAngle(angle: number): void {
-      detectionAngle = angle;
     },
     setBoids(newBoids: Boid[]): void {
       boids = newBoids;
@@ -41,12 +34,10 @@ export function spatialHashBoidCollection(
   width: number,
   height: number,
   boids: Boid[],
-  detectionRadius: number,
-  detectionAngle: number
+  detectionRadius: number
 ): SpatialHashBoidCollection {
   let _boids = boids;
   let _detectionRadius2 = detectionRadius * detectionRadius;
-  let _detectionAngle = detectionAngle;
   const cellSize = detectionRadius;
   const cols = Math.ceil(width / cellSize);
   const rows = Math.ceil(height / cellSize);
@@ -72,11 +63,7 @@ export function spatialHashBoidCollection(
 
   function isInDetectionArea(boid: Boid, other: Boid): boolean {
     const vectorToOther = other.position.sub(boid.position);
-    if (vectorToOther.lengthSquared() > _detectionRadius2) {
-      return false;
-    }
-    const angle = boid.velocity.angle(vectorToOther);
-    return Math.abs(angle) <= _detectionAngle / 2;
+    return vectorToOther.lengthSquared() <= _detectionRadius2;
   }
 
   function getNeighbors(boid: Boid): Boid[] {
@@ -111,9 +98,6 @@ export function spatialHashBoidCollection(
     getNeighbors,
     setDetectionRadius(radius: number): void {
       _detectionRadius2 = radius * radius;
-    },
-    setDetectionAngle(angle: number): void {
-      _detectionAngle = angle;
     },
     setBoids(boids: Boid[]): void {
       _boids = boids;

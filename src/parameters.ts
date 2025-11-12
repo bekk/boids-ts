@@ -6,7 +6,6 @@ interface InternalParameters {
   neighborRadius: number;
   collisionRadius: number;
   maxSpeed: number;
-  detectionAngle: number;
   totalForceWeight: number;
   numBoids: number;
 }
@@ -19,7 +18,6 @@ const defaultParameters: InternalParameters = {
   neighborRadius: 50,
   collisionRadius: 10,
   maxSpeed: 200,
-  detectionAngle: Math.PI * 2,
   totalForceWeight: 10_000,
   numBoids: 2000,
 };
@@ -85,14 +83,6 @@ export class Parameters {
   }
   set maxSpeed(value: number) {
     this._parameters.maxSpeed = value;
-    this.save();
-  }
-
-  get detectionAngle() {
-    return this._parameters.detectionAngle;
-  }
-  set detectionAngle(value: number) {
-    this._parameters.detectionAngle = value;
     this.save();
   }
 

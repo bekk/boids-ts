@@ -25,18 +25,6 @@ export function createUi(world: World) {
   );
   createSlider(
     sliderContainer,
-    "Detection Angle (degrees)",
-    10,
-    360,
-    10,
-    (world.parameters.detectionAngle * 180) / Math.PI,
-    (newAngleDegrees) => {
-      const newAngleRadians = (newAngleDegrees * Math.PI) / 180;
-      world.setDetectionAngle(newAngleRadians);
-    }
-  );
-  createSlider(
-    sliderContainer,
     "Boid Speed",
     50,
     1000,
