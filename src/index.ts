@@ -78,9 +78,9 @@ function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
   ctx.translate(position.x, position.y);
   ctx.rotate(direction.angle());
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(-12, 5);
-  ctx.lineTo(-12, -5);
+  ctx.moveTo(5, 0);
+  ctx.lineTo(-5, 3);
+  ctx.lineTo(-5, -3);
   ctx.fill();
   ctx.restore();
 }
@@ -93,9 +93,9 @@ function drawPredator(ctx: CanvasRenderingContext2D, predator: Predator) {
   ctx.rotate(direction.angle());
   ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(-16, 8);
-  ctx.lineTo(-16, -8);
+  ctx.moveTo(8, 0);
+  ctx.lineTo(-8, 8);
+  ctx.lineTo(-8, -8);
   ctx.fill();
   ctx.restore();
 }
@@ -107,6 +107,7 @@ function drawMouseAttractionArea(ctx: CanvasRenderingContext2D, world: World) {
   ctx.save();
   ctx.fillStyle = "none";
   ctx.strokeStyle = "white";
+  ctx.setLineDash([5, 5]);
 
   const radius = world.parameters.value.mouseRadius;
   ctx.strokeStyle = "white";

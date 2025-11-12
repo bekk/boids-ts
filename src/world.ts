@@ -24,29 +24,30 @@ export class World {
     this.parameters.onChange("neighborRadius", (newRadius) => {
       this.collection.setDetectionRadius(newRadius);
     });
-    this.boids = Array.from({ length: this.parameters.value.numBoids }, () =>
-      this.createBoid()
-    );
+    this.boids = [];
     this.collection = new NaiveBoidCollection(
       this.boids,
       this.parameters.value.neighborRadius
     );
 
-    this.predators = Array.from({ length: 5 }, () => this.createPredator());
-  }
-
-  private createPredator(): Predator {
-    const speed = 100;
-    return new Predator(
-      new Vector2(Math.random() * this.width, Math.random() * this.height),
-      new Vector2(Math.random() - 0.5, Math.random() - 0.5)
-        .normalize()
-        .mul(speed),
-      this
+    this.predators = [];
+    this.parameters.onChange("numPredators", (newNumPredators) =>
+      this.setNumberOfPredators(newNumPredators)
     );
   }
 
-  update(deltaTime: number) {
+  private initalize(deltaTime: number) {
+    // må vente med å initialisere predators til etter at konstruktøren er ferdig
+    this.setNumberOfBoids(this.parameters.value.numBoids);
+    this.setNumberOfPredators(this.parameters.value.numPredators);
+    this.update = this.doUpdate;
+    this.doUpdate(deltaTime);
+  }
+
+  // strategy pattern for å unngå å kjøre initialisering i update-løkken
+  update: (deltaTime: number) => void = this.initalize;
+
+  private doUpdate(deltaTime: number) {
     /*
     For hver boid gjøres følgende:
       1. beregn krefter basert på naboer og parametere
@@ -104,6 +105,17 @@ export class World {
     };
   }
 
+  private createPredator(): Predator {
+    const speed = 100;
+    return new Predator(
+      new Vector2(Math.random() * this.width, Math.random() * this.height),
+      new Vector2(Math.random() - 0.5, Math.random() - 0.5)
+        .normalize()
+        .mul(speed),
+      this
+    );
+  }
+
   private setNumberOfBoids(newCount: number) {
     const currentCount = this.boids.length;
     if (newCount > currentCount) {
@@ -114,5 +126,16 @@ export class World {
       this.boids.splice(newCount, currentCount - newCount);
     }
     this.collection.setBoids(this.boids);
+  }
+
+  private setNumberOfPredators(newCount: number) {
+    const currentCount = this.predators.length;
+    if (newCount > currentCount) {
+      for (let i = currentCount; i < newCount; i++) {
+        this.predators.push(this.createPredator());
+      }
+    } else if (newCount < currentCount) {
+      this.predators.splice(newCount, currentCount - newCount);
+    }
   }
 }

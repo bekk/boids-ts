@@ -1,4 +1,5 @@
 import type { Boid } from "./boids";
+import { clamp } from "./utils/math";
 import type { Vector2 } from "./vector2";
 import type { World } from "./world";
 
@@ -24,10 +25,8 @@ export class Predator {
     }
 
     if (this.currentPrey) {
-      const maxSpeed = 300;
-
       const toPrey = this.currentPrey.position.sub(this.position);
-      // check if its faster to wrap around the world edges
+      // sjekk om man kan ta "snarveien" rundt world edges
       if (toPrey.x > this.world.width / 2) {
         toPrey.x -= this.world.width;
       } else if (toPrey.x < -this.world.width / 2) {
@@ -41,13 +40,13 @@ export class Predator {
 
       const turnRadius = 50;
       const angleToPrey = this.velocity.angle(toPrey);
+      const maxSpeed = this.world.parameters.value.predatorSpeed;
       const angularVelocity = maxSpeed / turnRadius;
       const maxTurnAngle = angularVelocity * deltaTime;
-      const clampedTurnAngle = Math.min(Math.abs(angleToPrey), maxTurnAngle);
-      const turnDirection = angleToPrey < 0 ? -1 : 1;
+      const clampedTurnAngle = clamp(angleToPrey, -maxTurnAngle, maxTurnAngle);
 
       this.velocity = this.velocity
-        .rotate(clampedTurnAngle * turnDirection)
+        .rotate(clampedTurnAngle)
         .normalize()
         .mul(maxSpeed);
     }

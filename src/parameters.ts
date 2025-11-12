@@ -12,6 +12,8 @@ export interface Parameters {
   minSpeed: number;
   totalForceWeight: number;
   numBoids: number;
+  numPredators: number;
+  predatorSpeed: number;
 }
 
 /** Et navn på en parameter som kan settes i {@link PersistedParameters} */
@@ -24,13 +26,15 @@ const defaultParameters: Parameters = {
   alignmentWeight: 1,
   separationWeight: 1,
   turningWeight: 1,
+  mouseAttractionWeight: 5,
+  totalForceWeight: 5_000,
   neighborRadius: 50,
   collisionRadius: 45,
-  maxSpeed: 300,
-  minSpeed: 100,
-  totalForceWeight: 5_000,
   mouseRadius: 100,
-  mouseAttractionWeight: 1,
+  minSpeed: 100,
+  maxSpeed: 300,
+  numPredators: 5,
+  predatorSpeed: 300,
 };
 
 /**
