@@ -4,9 +4,12 @@ export interface Parameters {
   alignmentWeight: number;
   separationWeight: number;
   turningWeight: number;
+  mouseAttractionWeight: number;
   neighborRadius: number;
   collisionRadius: number;
+  mouseRadius: number;
   maxSpeed: number;
+  minSpeed: number;
   totalForceWeight: number;
   numBoids: number;
 }
@@ -16,15 +19,18 @@ export type ParameterName = keyof Parameters;
 
 /** Standardverdier som brukes når verdiene ikke finnes i localStorage */
 const defaultParameters: Parameters = {
+  numBoids: 600,
   cohesionWeight: 1,
   alignmentWeight: 1,
   separationWeight: 1,
   turningWeight: 1,
   neighborRadius: 50,
-  collisionRadius: 10,
-  maxSpeed: 200,
-  totalForceWeight: 10_000,
-  numBoids: 2000,
+  collisionRadius: 45,
+  maxSpeed: 300,
+  minSpeed: 100,
+  totalForceWeight: 5_000,
+  mouseRadius: 100,
+  mouseAttractionWeight: 1,
 };
 
 /**

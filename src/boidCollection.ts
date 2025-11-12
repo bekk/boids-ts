@@ -5,7 +5,7 @@ export function naiveBoidCollection(
   boids: Boid[],
   detectionRadius: number
 ): BoidCollection {
-  const detectionRadiusSq = detectionRadius * detectionRadius;
+  let detectionRadiusSq = detectionRadius * detectionRadius;
   function isInDetectionArea(boid: Boid, other: Boid): boolean {
     const vectorToOther = other.position.sub(boid.position);
     return vectorToOther.lengthSquared() <= detectionRadiusSq;
@@ -18,7 +18,7 @@ export function naiveBoidCollection(
       );
     },
     setDetectionRadius(radius: number): void {
-      detectionRadius = radius;
+      detectionRadiusSq = radius * radius;
     },
     setBoids(newBoids: Boid[]): void {
       boids = newBoids;

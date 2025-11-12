@@ -2,14 +2,29 @@ import type { Boid } from "./boids";
 import { createUi } from "./createUi";
 import "./style.css";
 import { nonNegativeRollingIntervalTimer } from "./timer";
+import { clamp } from "./utils/math";
 import { Vector2 } from "./vector2";
 import { World } from "./world";
 
-let mousePosition = new Vector2(0, 0);
 function setupCanvas() {
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
   const ctx = canvas.getContext("2d");
   canvas.addEventListener("mousemove", (event) => onMouseMove(event, canvas));
+  canvas.addEventListener("mouseleave", () => {
+    world.mousePosition = null;
+  });
+  window.addEventListener(
+    "wheel",
+    (event: WheelEvent) => {
+      if (world.mousePosition === null) return;
+      const targetValue =
+        world.parameters.value.mouseRadius + event.deltaY * 0.2;
+      world.parameters.setParameter("mouseRadius", clamp(targetValue, 10, 500));
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    { passive: false }
+  );
   if (!ctx) {
     throw new Error("Failed to get canvas 2D context");
   }
@@ -21,8 +36,7 @@ function onMouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
 
-  mousePosition.x = mouseX;
-  mousePosition.y = mouseY;
+  world.mousePosition = new Vector2(mouseX, mouseY);
 }
 
 const timer = nonNegativeRollingIntervalTimer();
@@ -46,7 +60,7 @@ function render(
   world.boids.forEach((boid) => {
     drawBoid(ctx, boid);
   });
-
+  drawMouseAttractionArea(ctx, world);
   lastTime = timeInMs;
   requestAnimationFrame((newTime) => render(newTime, world, canvas, ctx));
 }
@@ -55,11 +69,6 @@ function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
   const position = boid.position;
   const direction = boid.velocity.normalize();
   ctx.save();
-  if (boid.isHero) {
-    ctx.fillStyle = "red";
-  } else if (boid.isNeighbor) {
-    ctx.fillStyle = "yellow";
-  }
   ctx.translate(position.x, position.y);
   ctx.rotate(direction.angle());
   ctx.beginPath();
@@ -67,6 +76,24 @@ function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
   ctx.lineTo(-12, 5);
   ctx.lineTo(-12, -5);
   ctx.fill();
+  ctx.restore();
+}
+
+function drawMouseAttractionArea(ctx: CanvasRenderingContext2D, world: World) {
+  const mousePosition = world.mousePosition;
+  if (!mousePosition) return;
+
+  ctx.save();
+  ctx.fillStyle = "none";
+  ctx.strokeStyle = "white";
+
+  const radius = world.parameters.value.mouseRadius;
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(mousePosition.x, mousePosition.y, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
   ctx.restore();
 }
 

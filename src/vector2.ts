@@ -151,6 +151,16 @@ export class Vector2 {
     }
     return this.copy();
   }
+  /** Returnerer en ny Vector2 hvor x- og y-koordinatene er klampet innenfor et spesifisert område.
+   * @param min - nedre grensevektor
+   * @param max - øvre grensevektor
+   */
+  clamp(min: Vector2, max: Vector2): Vector2 {
+    return new Vector2(
+      Math.min(Math.max(this.x, min.x), max.x),
+      Math.min(Math.max(this.y, min.y), max.y)
+    );
+  }
   /** Returnerer en strengrepresentasjon av vektoren i formatet `(x, y)` */
   toString(): string {
     return `(${this.x}, ${this.y})`;

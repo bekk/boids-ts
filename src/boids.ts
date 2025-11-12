@@ -1,13 +1,5 @@
+import type { Parameters } from "./parameters";
 import { Vector2 } from "./vector2";
-
-interface Parameters {
-  cohesionWeight: number;
-  alignmentWeight: number;
-  separationWeight: number;
-  neighborRadius: number;
-  collisionRadius: number;
-  turningWeight: number;
-}
 
 export interface BoidCollection {
   setBoids(boids: Boid[]): void;
@@ -18,37 +10,40 @@ export interface BoidCollection {
 export interface Boid {
   position: Vector2;
   velocity: Vector2;
-  isHero: boolean;
-  isNeighbor: boolean;
 }
 
 export function calculateBoidForces(
   boid: Boid,
   allBoids: BoidCollection,
-  parameters: Parameters
+  parameters: Parameters,
+  mousePosition: Vector2 | null
 ): Vector2 {
   const neighbors = allBoids.getNeighbors(boid);
-
-  if (boid.isHero) {
-    neighbors.forEach((neighbor) => {
-      neighbor.isNeighbor = true;
-    });
-  }
 
   return Vector2.zero
     .add(calculateAlignmentForce(neighbors).mul(parameters.alignmentWeight))
     .add(calculateCohesionForce(boid, neighbors).mul(parameters.cohesionWeight))
     .add(
-      calculateSeparationForce(boid, neighbors, parameters.neighborRadius).mul(
+      calculateSeparationForce(boid, neighbors, parameters.collisionRadius).mul(
         parameters.separationWeight
       )
     )
-    .add(calculateTurningForce(boid).mul(parameters.turningWeight));
+    .add(calculateTurningForce(boid).mul(parameters.turningWeight))
+    .add(
+      calculateMouseAttractionForce(boid, mousePosition, parameters).mul(
+        parameters.mouseAttractionWeight
+      )
+    )
+    .mul(parameters.totalForceWeight);
 }
 
 function calculateAlignmentForce(neighbors: Boid[]): Vector2 {
   // for all boids in detection radius and angle
   // find average direction
+  if (neighbors.length === 0) {
+    return new Vector2(0, 0);
+  }
+
   return neighbors
     .reduce((acc, boid) => acc.add(boid.velocity), new Vector2(0, 0))
     .normalize();
@@ -71,15 +66,18 @@ function calculateCohesionForce(boid: Boid, neighbors: Boid[]): Vector2 {
 function calculateSeparationForce(
   boid: Boid,
   neighbors: Boid[],
-  neighborRadius: number
+  collisionRadius: number
 ): Vector2 {
   // for all boids in detection radius and angle
   // find average position of nearby boids
-  const collisionRadius2 = neighborRadius * neighborRadius;
+  if (neighbors.length === 0) {
+    return new Vector2(0, 0);
+  }
+
   function forceFromNeighbor(neighbor: Boid): Vector2 {
     const direction = boid.position.sub(neighbor.position);
     const relativeDistance =
-      (collisionRadius2 - direction.lengthSquared()) / collisionRadius2;
+      (collisionRadius - direction.length()) / collisionRadius;
     return direction.normalize().mul(relativeDistance);
   }
 
@@ -89,18 +87,38 @@ function calculateSeparationForce(
 }
 
 function calculateTurningForce(boid: Boid): Vector2 {
-  const margin = 50;
-  const turnFactor = 1;
-  const force = new Vector2(0, 0);
+  const margin = 100; // predict 0.5 second ahead
+
+  const bounds = new Vector2(1280, 720);
+  const force = Vector2.zero;
+
   if (boid.position.x < margin) {
-    force.x += (boid.position.x / margin) * turnFactor;
-  } else if (boid.position.x > 1280 - margin) {
-    force.x -= ((1280 - boid.position.x) / margin) * turnFactor;
+    force.x += 1;
+  } else if (boid.position.x > bounds.x - margin) {
+    force.x -= 1;
+  } else if (boid.position.y < margin) {
+    force.y += 1;
+  } else if (boid.position.y > bounds.y - margin) {
+    force.y -= 1;
   }
-  if (boid.position.y < margin) {
-    force.y += (boid.position.y / margin) * turnFactor;
-  } else if (boid.position.y > 720 - margin) {
-    force.y -= ((720 - boid.position.y) / margin) * turnFactor;
+
+  return force;
+}
+
+function calculateMouseAttractionForce(
+  boid: Boid,
+  mousePosition: Vector2 | null,
+  parameters: Parameters
+): Vector2 {
+  if (!mousePosition) {
+    return Vector2.zero;
   }
-  return force.limit(1);
+
+  const toMouse = mousePosition.sub(boid.position);
+  const distance = toMouse.length();
+  if (distance > parameters.mouseRadius) {
+    return Vector2.zero;
+  }
+  const strength = 1 - distance / parameters.mouseRadius;
+  return toMouse.normalize().mul(strength);
 }
