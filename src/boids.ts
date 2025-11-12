@@ -1,6 +1,6 @@
 import type { Parameters } from "./parameters";
 import type { Predator } from "./predator";
-import { Vector2 } from "./vector2";
+import { Vector2 } from "./utils/vector2";
 
 export interface BoidCollection {
   setBoids(boids: Boid[]): void;

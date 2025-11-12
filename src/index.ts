@@ -3,7 +3,7 @@ import { Renderer } from "./draw";
 import "./style.css";
 import { RollingIntervalTimer } from "./timer";
 import { clamp } from "./utils/math";
-import { Vector2 } from "./vector2";
+import { Vector2 } from "./utils/vector2";
 import { World } from "./world";
 
 function setupCanvas(): {

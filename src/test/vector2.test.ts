@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Vector2 } from "../vector2";
+import { Vector2 } from "../utils/vector2";
 
 describe("Constructor", () => {
   test("should create a Vector2 with given x and y", () => {

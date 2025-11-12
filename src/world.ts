@@ -3,7 +3,7 @@ import { calculateBoidForces, type Boid, type BoidCollection } from "./boids";
 import { PersistedParameters } from "./parameters";
 import { Predator } from "./predator";
 import { clamp } from "./utils/math";
-import { Vector2 } from "./vector2";
+import { Vector2 } from "./utils/vector2";
 
 export class World {
   width: number;

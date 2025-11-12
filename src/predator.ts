@@ -1,6 +1,6 @@
 import type { Boid } from "./boids";
 import { clamp } from "./utils/math";
-import type { Vector2 } from "./vector2";
+import type { Vector2 } from "./utils/vector2";
 import type { World } from "./world";
 
 export class Predator {
