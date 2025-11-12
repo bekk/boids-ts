@@ -20,7 +20,13 @@ export class World {
     this.width = width;
     this.height = height;
     this.parameters = new Parameters();
-    this.boids = Array.from({ length: this.parameters.numBoids }, () =>
+    this.parameters.onChange("numBoids", (newNumBoids) =>
+      this.setNumberOfBoids(newNumBoids)
+    );
+    this.parameters.onChange("neighborRadius", (newRadius) => {
+      this.collection.setDetectionRadius(newRadius);
+    });
+    this.boids = Array.from({ length: this.parameters.value.numBoids }, () =>
       this.createBoid()
     );
     this.boids[0].isHero = true;
@@ -28,8 +34,7 @@ export class World {
       this.width,
       this.height,
       this.boids,
-      this.parameters.neighborRadius,
-      this.parameters.detectionAngle
+      this.parameters.value.neighborRadius
     );
   }
 
@@ -39,11 +44,14 @@ export class World {
       boid.isNeighbor = false;
     });
     this.boids.forEach((boid) => {
-      const force = calculateBoidForces(boid, this.collection, this.parameters);
-      //.mul(deltaTime * this.parameters.totalForceWeight);
+      const force = calculateBoidForces(
+        boid,
+        this.collection,
+        this.parameters.value
+      ).mul(deltaTime * this.parameters.value.totalForceWeight);
       boid.velocity = boid.velocity
         .add(force)
-        .limit(this.parameters.maxSpeed / 100);
+        .limit(this.parameters.value.maxSpeed);
     });
     this.boids.forEach((boid) => {
       boid.position = boid.position.add(boid.velocity);
@@ -60,13 +68,13 @@ export class World {
       ),
       velocity: new Vector2(Math.random() - 0.5, Math.random() - 0.5)
         .normalize()
-        .mul(this.parameters.maxSpeed),
+        .mul(this.parameters.value.maxSpeed),
       isHero: false,
       isNeighbor: false,
     };
   }
 
-  setNumberOfBoids(newCount: number) {
+  private setNumberOfBoids(newCount: number) {
     const currentCount = this.boids.length;
     if (newCount > currentCount) {
       for (let i = currentCount; i < newCount; i++) {
@@ -75,37 +83,6 @@ export class World {
     } else if (newCount < currentCount) {
       this.boids.splice(newCount, currentCount - newCount);
     }
-    this.parameters.numBoids = newCount;
     this.collection.setBoids(this.boids);
-  }
-
-  setDetectionRadius(radius: number) {
-    this.collection.setDetectionRadius(radius);
-    this.parameters.neighborRadius = radius;
-  }
-  setDetectionAngle(angle: number) {
-    this.collection.setDetectionAngle(angle);
-    this.parameters.detectionAngle = angle;
-  }
-  setCohesionWeight(weight: number) {
-    this.parameters.cohesionWeight = weight;
-  }
-  setAlignmentWeight(weight: number) {
-    this.parameters.alignmentWeight = weight;
-  }
-  setSeparationWeight(weight: number) {
-    this.parameters.separationWeight = weight;
-  }
-  setTotalForceWeight(weight: number) {
-    this.parameters.totalForceWeight = weight;
-  }
-  setMaxSpeed(speed: number) {
-    this.parameters.maxSpeed = speed;
-  }
-  setMousePosition(position: Vector2) {
-    this.mousePosition = position;
-  }
-  setTurningWeight(weight: number) {
-    this.parameters.turningWeight = weight;
   }
 }

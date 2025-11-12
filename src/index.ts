@@ -23,7 +23,6 @@ function onMouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {
 
   mousePosition.x = mouseX;
   mousePosition.y = mouseY;
-  world.setMousePosition(mousePosition);
 }
 
 const timer = nonNegativeRollingIntervalTimer();
@@ -74,5 +73,5 @@ function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
 const { canvas, ctx } = setupCanvas();
 
 const world = new World(1280, 720);
-createUi(world);
+createUi(world.parameters);
 render(0, world, canvas, ctx);

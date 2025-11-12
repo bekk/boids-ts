@@ -10,6 +10,8 @@ interface InternalParameters {
   numBoids: number;
 }
 
+export type ParameterName = keyof InternalParameters;
+
 const defaultParameters: InternalParameters = {
   cohesionWeight: 1,
   alignmentWeight: 1,
@@ -34,79 +36,34 @@ export class Parameters {
     }
   }
 
+  private _subscribers: {
+    [K in ParameterName]?: Array<(newValue: InternalParameters[K]) => void>;
+  } = {};
+
+  public onChange<K extends ParameterName>(
+    key: K,
+    listener: (newValue: InternalParameters[K]) => void
+  ) {
+    if (!this._subscribers[key]) {
+      this._subscribers[key] = [];
+    }
+    this._subscribers[key]!.push(listener);
+  }
+
+  public get value(): InternalParameters {
+    return { ...this._parameters };
+  }
+
+  public setParameter<K extends ParameterName>(
+    key: K,
+    value: InternalParameters[K]
+  ) {
+    this._parameters[key] = value;
+    this.save();
+    this._subscribers[key]?.forEach((listener) => listener(value));
+  }
+
   private save() {
     localStorage.setItem("boidParameters", JSON.stringify(this._parameters));
-  }
-
-  get cohesionWeight() {
-    return this._parameters.cohesionWeight;
-  }
-  set cohesionWeight(value: number) {
-    this._parameters.cohesionWeight = value;
-    this.save();
-  }
-
-  get alignmentWeight() {
-    return this._parameters.alignmentWeight;
-  }
-  set alignmentWeight(value: number) {
-    this._parameters.alignmentWeight = value;
-    this.save();
-  }
-
-  get separationWeight() {
-    return this._parameters.separationWeight;
-  }
-  set separationWeight(value: number) {
-    this._parameters.separationWeight = value;
-    this.save();
-  }
-
-  get neighborRadius() {
-    return this._parameters.neighborRadius;
-  }
-  set neighborRadius(value: number) {
-    this._parameters.neighborRadius = value;
-    this.save();
-  }
-
-  get collisionRadius() {
-    return this._parameters.collisionRadius;
-  }
-  set collisionRadius(value: number) {
-    this._parameters.collisionRadius = value;
-    this.save();
-  }
-
-  get maxSpeed() {
-    return this._parameters.maxSpeed;
-  }
-  set maxSpeed(value: number) {
-    this._parameters.maxSpeed = value;
-    this.save();
-  }
-
-  get totalForceWeight() {
-    return this._parameters.totalForceWeight;
-  }
-  set totalForceWeight(value: number) {
-    this._parameters.totalForceWeight = value;
-    this.save();
-  }
-
-  get numBoids() {
-    return this._parameters.numBoids;
-  }
-  set numBoids(value: number) {
-    this._parameters.numBoids = value;
-    this.save();
-  }
-
-  get turningWeight() {
-    return this._parameters.turningWeight;
-  }
-  set turningWeight(value: number) {
-    this._parameters.turningWeight = value;
-    this.save();
   }
 }
