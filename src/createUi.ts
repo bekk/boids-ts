@@ -23,7 +23,6 @@ export function createUi(parameters: PersistedParameters) {
     1,
     "mouseAttractionWeight"
   );
-  factory.create("Total Force Weight", 0, 10_000, 100, "totalForceWeight");
 }
 
 export function createSliderFactory(
