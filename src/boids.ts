@@ -7,9 +7,13 @@ export interface Boid {
   velocity: Vector2;
 }
 
+/** Beregner de totale kreftene som virker på en boid basert på naboer og omgivelser.\
+ * Denne metoden er ferdig! Du trenger ikke å endre noe her.
+ */
 export function calculateBoidForces(boid: Boid, world: World): Vector2 {
   const neighbors = world.collection.getNeighbors(boid);
   const parameters = world.parameters.value;
+
   return Vector2.zero
     .add(alignmentForce(neighbors).mul(parameters.alignmentWeight))
     .add(cohesionForce(boid, neighbors).mul(parameters.cohesionWeight))
@@ -31,7 +35,7 @@ export function calculateBoidForces(boid: Boid, world: World): Vector2 {
       )
     )
     .add(wallAvoidanceForce(boid, world).mul(parameters.wallAvoidanceWeight))
-    .mul(parameters.totalForceWeight);
+    .mul(parameters.globalForceMultiplier);
 }
 
 function alignmentForce(neighbors: Boid[]): Vector2 {
