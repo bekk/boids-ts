@@ -1,7 +1,7 @@
 import { createUi } from "./ui/createUi";
 import { Renderer } from "./draw";
 import "./style.css";
-import { RollingIntervalTimer } from "./timer";
+import { RollingIntervalTimer } from "./utils/rollingIntervalTimer";
 import { clamp } from "./utils/math";
 import { Vector2 } from "./utils/vector2";
 import { World } from "./world";
