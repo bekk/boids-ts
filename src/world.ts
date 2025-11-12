@@ -14,6 +14,8 @@ export class World {
   mousePosition: Vector2 | null = null;
   parameters: PersistedParameters;
 
+  private isInitialized = false;
+
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -36,28 +38,29 @@ export class World {
     );
   }
 
-  private initalize(deltaTime: number) {
+  private initalize() {
     // må vente med å initialisere predators til etter at konstruktøren er ferdig
     this.setNumberOfBoids(this.parameters.value.numBoids);
     this.setNumberOfPredators(this.parameters.value.numPredators);
-    this.update = this.doUpdate;
-    this.doUpdate(deltaTime);
+    this.isInitialized = true;
   }
 
-  // strategy pattern for å unngå å kjøre initialisering i update-løkken
-  update: (deltaTime: number) => void = this.initalize;
+  update(deltaTime: number) {
+    if (!this.isInitialized) {
+      this.initalize();
+      return;
+    }
 
-  private doUpdate(deltaTime: number) {
+    this.predators.forEach((predator) => {
+      predator.update(deltaTime);
+    });
+
     /*
     For hver boid gjøres følgende:
       1. beregn krefter basert på naboer og parametere
       2. oppdater hastighet basert på krefter og deltaTime
       3. oppdater posisjon basert på hastighet
      */
-
-    this.predators.forEach((predator) => {
-      predator.update(deltaTime);
-    });
 
     /* Beregn krefter og oppdater hastighet
     Vi kan trygt gjøre dette i samme løkke, fordi ingen krefter er påvirket av boid.velocity
