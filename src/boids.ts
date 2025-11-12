@@ -1,48 +1,43 @@
 import type { Parameters } from "./parameters";
-import type { Predator } from "./predator";
 import { Vector2 } from "./utils/vector2";
-
-export interface BoidCollection {
-  setBoids(boids: Boid[]): void;
-  getNeighbors(boid: Boid): Boid[];
-  setDetectionRadius(radius: number): void;
-}
+import type { World } from "./world";
 
 export interface Boid {
   position: Vector2;
   velocity: Vector2;
 }
 
-export function calculateBoidForces(
-  boid: Boid,
-  allBoids: BoidCollection,
-  predators: Predator[],
-  parameters: Parameters,
-  mousePosition: Vector2 | null
-): Vector2 {
-  const neighbors = allBoids.getNeighbors(boid);
-
+export function calculateBoidForces(boid: Boid, world: World): Vector2 {
+  const neighbors = world.collection.getNeighbors(boid);
+  const parameters = world.parameters.value;
   return Vector2.zero
-    .add(calculateAlignmentForce(neighbors).mul(parameters.alignmentWeight))
-    .add(calculateCohesionForce(boid, neighbors).mul(parameters.cohesionWeight))
+    .add(alignmentForce(neighbors).mul(parameters.alignmentWeight))
+    .add(cohesionForce(boid, neighbors).mul(parameters.cohesionWeight))
     .add(
-      calculateSeparationForce(boid, neighbors, parameters.collisionRadius).mul(
+      separationForce(boid, neighbors, parameters.collisionRadius).mul(
         parameters.separationWeight
       )
     )
-    .add(calculateTurningForce(boid).mul(parameters.turningWeight))
     .add(
-      calculateMouseAttractionForce(boid, mousePosition, parameters).mul(
+      predatorAvoidanceForce(
+        boid,
+        world.predators,
+        parameters.neighborRadius
+      ).mul(5)
+    )
+    .add(
+      mouseAttractionForce(boid, world.mousePosition, parameters).mul(
         parameters.mouseAttractionWeight
       )
     )
-    .add(calculatePredatorAvoidanceForce(boid, predators, 100).mul(5))
+    .add(wallAvoidanceForce(boid, world).mul(parameters.turningWeight))
     .mul(parameters.totalForceWeight);
 }
 
-function calculateAlignmentForce(neighbors: Boid[]): Vector2 {
+function alignmentForce(neighbors: Boid[]): Vector2 {
   // for all boids in detection radius and angle
   // find average direction
+
   if (neighbors.length === 0) {
     return new Vector2(0, 0);
   }
@@ -52,9 +47,10 @@ function calculateAlignmentForce(neighbors: Boid[]): Vector2 {
     .normalize();
 }
 
-function calculateCohesionForce(boid: Boid, neighbors: Boid[]): Vector2 {
+function cohesionForce(boid: Boid, neighbors: Boid[]): Vector2 {
   // for all boids in detection radius and angle
   // find average position
+
   if (neighbors.length === 0) {
     return new Vector2(0, 0);
   }
@@ -66,7 +62,7 @@ function calculateCohesionForce(boid: Boid, neighbors: Boid[]): Vector2 {
   return averageNeighborPosition.sub(boid.position).normalize();
 }
 
-function calculateSeparationForce(
+function separationForce(
   boid: Boid,
   neighbors: Boid[],
   collisionRadius: number
@@ -89,7 +85,7 @@ function calculateSeparationForce(
     .reduce((acc, force) => acc.add(force), new Vector2(0, 0));
 }
 
-function calculatePredatorAvoidanceForce(
+function predatorAvoidanceForce(
   boid: Boid,
   predators: Boid[],
   safeRadius: number
@@ -116,26 +112,7 @@ function calculatePredatorAvoidanceForce(
   return avoidanceForce;
 }
 
-function calculateTurningForce(boid: Boid): Vector2 {
-  const margin = 100; // predict 0.5 second ahead
-
-  const bounds = new Vector2(1280, 720);
-  const force = Vector2.zero;
-
-  if (boid.position.x < margin) {
-    force.x += 1;
-  } else if (boid.position.x > bounds.x - margin) {
-    force.x -= 1;
-  } else if (boid.position.y < margin) {
-    force.y += 1;
-  } else if (boid.position.y > bounds.y - margin) {
-    force.y -= 1;
-  }
-
-  return force;
-}
-
-function calculateMouseAttractionForce(
+function mouseAttractionForce(
   boid: Boid,
   mousePosition: Vector2 | null,
   parameters: Parameters
@@ -151,4 +128,22 @@ function calculateMouseAttractionForce(
   }
   const strength = 1 - distance / parameters.mouseRadius;
   return toMouse.normalize().mul(strength);
+}
+
+function wallAvoidanceForce(boid: Boid, world: World): Vector2 {
+  const margin = 100; // predict 0.5 second ahead
+
+  const force = Vector2.zero;
+
+  if (boid.position.x < margin) {
+    force.x += 1;
+  } else if (boid.position.x > world.width - margin) {
+    force.x -= 1;
+  } else if (boid.position.y < margin) {
+    force.y += 1;
+  } else if (boid.position.y > world.height - margin) {
+    force.y -= 1;
+  }
+
+  return force;
 }

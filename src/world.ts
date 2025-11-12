@@ -1,5 +1,5 @@
-import { NaiveBoidCollection } from "./boidCollection";
-import { calculateBoidForces, type Boid, type BoidCollection } from "./boids";
+import { NaiveBoidCollection, type BoidCollection } from "./boidCollection";
+import { calculateBoidForces, type Boid } from "./boids";
 import { PersistedParameters } from "./parameters";
 import { Predator } from "./predator";
 import { clamp } from "./utils/math";
@@ -63,13 +63,7 @@ export class World {
     Vi kan trygt gjøre dette i samme løkke, fordi ingen krefter er påvirket av boid.velocity
     boid.position må oppdateres i egen løkke, for å unngå blanding av gamle og nye verdier */
     this.boids.forEach((boid) => {
-      const force = calculateBoidForces(
-        boid,
-        this.collection,
-        this.predators,
-        this.parameters.value,
-        this.mousePosition
-      );
+      const force = calculateBoidForces(boid, this);
 
       boid.velocity = boid.velocity.add(force.mul(deltaTime));
 

@@ -1,5 +1,18 @@
-import type { Boid, BoidCollection } from "./boids";
+import type { Boid } from "./boids";
 
+/** Representerer en samling boids, med muligheten for å hente naboer til en gitt boid basert på en deteksjonsradius */
+export interface BoidCollection {
+  /** Henter alle boids innenfor deteksjonsradiusen til den gitte boiden */
+  getNeighbors(boid: Boid): Boid[];
+  /** Setter hvilke boids som er i samlingen */
+  setBoids(boids: Boid[]): void;
+  /** Setter deteksjonsradiusen brukt for å finne naboer */
+  setDetectionRadius(radius: number): void;
+}
+
+/** Naiv n^2 implementasjon av {@link BoidCollection} \
+ * For hver boid, sjekkes alle andre boids for å se om de er innenfor deteksjonsradiusen
+ */
 export class NaiveBoidCollection implements BoidCollection {
   private _boids: Boid[];
   private _detectionRadiusSq: number;

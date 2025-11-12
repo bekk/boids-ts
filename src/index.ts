@@ -6,7 +6,10 @@ import { clamp } from "./utils/math";
 import { Vector2 } from "./utils/vector2";
 import { World } from "./world";
 
-function setupCanvas(): {
+function setupCanvas(
+  width: number,
+  height: number
+): {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 } {
@@ -14,6 +17,8 @@ function setupCanvas(): {
   if (!(canvas instanceof HTMLCanvasElement)) {
     throw new Error("Canvas element not found");
   }
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext("2d");
 
   if (!ctx) {
@@ -76,8 +81,9 @@ function render(
   requestAnimationFrame((newTime) => render(newTime, world, canvas, ctx));
 }
 
-const { canvas, ctx } = setupCanvas();
-const world = new World(1280, 720);
+const size = { width: 960, height: 540 };
+const { canvas, ctx } = setupCanvas(size.width, size.height);
+const world = new World(size.width, size.height);
 setupEventListeners(canvas, world);
 const renderer = new Renderer(ctx, world);
 createUi(world.parameters);
