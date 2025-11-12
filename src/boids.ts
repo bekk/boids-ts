@@ -30,9 +30,11 @@ export function calculateBoidForces(boid: Boid, world: World): Vector2 {
       ).mul(parameters.predatorAvoidanceWeight)
     )
     .add(
-      mouseAttractionForce(boid, world.mousePosition, parameters).mul(
-        parameters.mouseAttractionWeight
-      )
+      mouseAttractionForce(
+        boid,
+        world.mousePosition,
+        parameters.mouseRadius
+      ).mul(parameters.mouseAttractionWeight)
     )
     .add(wallAvoidanceForce(boid, world).mul(parameters.wallAvoidanceWeight))
     .mul(parameters.globalForceMultiplier);
@@ -116,10 +118,11 @@ function predatorAvoidanceForce(
   return avoidanceForce;
 }
 
+/** Kraften som tiltrekker boiden mot musens posisjon */
 function mouseAttractionForce(
   boid: Boid,
   mousePosition: Vector2 | null,
-  parameters: Parameters
+  mouseRadius: number
 ): Vector2 {
   if (!mousePosition) {
     return Vector2.zero;
@@ -127,13 +130,14 @@ function mouseAttractionForce(
 
   const toMouse = mousePosition.sub(boid.position);
   const distance = toMouse.length();
-  if (distance > parameters.mouseRadius) {
+  if (distance > mouseRadius) {
     return Vector2.zero;
   }
-  const strength = 1 - distance / parameters.mouseRadius;
+  const strength = 1 - distance / mouseRadius;
   return toMouse.withLength(strength);
 }
 
+/** Kraften som hindrer boiden fra å kollidere med kantene av verden */
 function wallAvoidanceForce(boid: Boid, world: World): Vector2 {
   const margin = 20; // predict 0.5 second ahead
 
