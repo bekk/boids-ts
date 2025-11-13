@@ -8,7 +8,7 @@ export interface Boid {
 
 /** Beregner de totale kreftene som virker på en boid basert på naboer og omgivelser.*/
 export function calculateBoidForces(boid: Boid, world: World): Vector2 {
-  /** Denne metoden er ferdig implementert! */
+  /** Denne metoden er ferdig implementert! Det er i de andre metodene i denne fila du skal gjøre ditt arbeid. */
   const neighbors = world.collection.getNeighbors(boid);
   const parameters = world.parameters.value;
 
@@ -39,31 +39,17 @@ export function calculateBoidForces(boid: Boid, world: World): Vector2 {
 }
 
 function alignmentForce(neighbors: Boid[]): Vector2 {
-  // for all boids in detection radius and angle
-  // find average direction
+  // finn gjennomsnittsretningen til alle naboene
 
-  if (neighbors.length === 0) {
-    return new Vector2(0, 0);
-  }
-
-  return neighbors
-    .reduce((acc, boid) => acc.add(boid.velocity), new Vector2(0, 0))
-    .normalize();
+  return Vector2.zero;
 }
 
 function cohesionForce(boid: Boid, neighbors: Boid[]): Vector2 {
-  // for all boids in detection radius and angle
-  // find average position
+  // finn gjennomsnittsposisjonen til naboene
+  // finn vektoren fra boidens posisjon til denne gjennomsnittsposisjonen
+  // normaliser denne vektoren og returner den
 
-  if (neighbors.length === 0) {
-    return new Vector2(0, 0);
-  }
-
-  const averageNeighborPosition = neighbors
-    .reduce((acc, boid) => acc.add(boid.position), new Vector2(0, 0))
-    .div(neighbors.length);
-
-  return averageNeighborPosition.sub(boid.position).normalize();
+  return Vector2.zero;
 }
 
 function separationForce(
@@ -71,49 +57,23 @@ function separationForce(
   neighbors: Boid[],
   collisionRadius: number
 ): Vector2 {
-  // for all boids in detection radius and angle
-  // find average position of nearby boids
-  if (neighbors.length === 0) {
-    return new Vector2(0, 0);
-  }
+  // for all naboer
+  // hvis de er innenfor collisionRadius
+  // legg til en kraft som peker bort fra dem, sterkere jo nærmere de er
 
-  function forceFromNeighbor(neighbor: Boid): Vector2 {
-    const direction = boid.position.sub(neighbor.position);
-    const relativeDistance =
-      (collisionRadius - direction.length()) / collisionRadius;
-    return direction.withLength(relativeDistance);
-  }
-
-  return neighbors
-    .map(forceFromNeighbor)
-    .reduce((acc, force) => acc.add(force), new Vector2(0, 0));
+  return Vector2.zero;
 }
 
 function predatorAvoidanceForce(
   boid: Boid,
   predators: Boid[],
-  safeRadius: number
+  predatorRadius: number
 ): Vector2 {
-  if (predators.length === 0) {
-    return Vector2.zero;
-  }
+  // for alle predators
+  // hvis de er innenfor predatorRadius
+  // legg til en kraft som peker bort fra dem, sterkere jo nærmere de er
 
-  function forceFromPredator(predator: Boid): Vector2 {
-    const toPredator = boid.position.sub(predator.position);
-    const distance = toPredator.length();
-    if (distance < safeRadius) {
-      const strength = (safeRadius - distance) / safeRadius;
-      return toPredator.withLength(strength);
-    } else {
-      return Vector2.zero;
-    }
-  }
-
-  const avoidanceForce = predators
-    .map(forceFromPredator)
-    .reduce((acc, force) => acc.add(force), Vector2.zero);
-
-  return avoidanceForce;
+  return Vector2.zero;
 }
 
 /** Kraften som tiltrekker boiden mot musens posisjon */
@@ -122,17 +82,12 @@ function mouseAttractionForce(
   mousePosition: Vector2 | null,
   mouseRadius: number
 ): Vector2 {
-  if (!mousePosition) {
-    return Vector2.zero;
-  }
+  // hvis musen ikke er tilstede, ingen kraft
+  // ellers, hvis boiden er innenfor mouseRadius
+  // legg til en kraft som peker mot musen
+  // enten konstant styrke, eller sterkere jo nærmere den er
 
-  const toMouse = mousePosition.sub(boid.position);
-  const distance = toMouse.length();
-  if (distance > mouseRadius) {
-    return Vector2.zero;
-  }
-  const strength = 1 - distance / mouseRadius;
-  return toMouse.withLength(strength);
+  return Vector2.zero;
 }
 
 /** Kraften som hindrer boiden fra å kollidere med kantene av verden */

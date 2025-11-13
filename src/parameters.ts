@@ -29,7 +29,7 @@ const defaultParameters: Parameters = {
   predatorAvoidanceWeight: 5,
   wallAvoidanceWeight: 5,
   mouseAttractionWeight: 5,
-  globalForceMultiplier: 5_000,
+  globalForceMultiplier: 2_000,
   neighborRadius: 50,
   collisionRadius: 45,
   mouseRadius: 100,
