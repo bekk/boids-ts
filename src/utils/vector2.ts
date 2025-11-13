@@ -148,6 +148,19 @@ export class Vector2 {
     }
     return this.copy();
   }
+  /** Returnerer en ny Vector2 hvor lengden er klampet innenfor et spesifisert minimum og maksimum.
+   * @param min - nedre grense for lengde
+   * @param max - øvre grense for lengde
+   */
+  clampLength(min: number, max: number): Vector2 {
+    const length = this.length();
+    if (length < min) {
+      return this.withLength(min);
+    } else if (length > max) {
+      return this.withLength(max);
+    }
+    return this.copy();
+  }
   /** Returnerer en ny Vector2 hvor x- og y-koordinatene er klampet innenfor et spesifisert område.
    * @param min - nedre grensevektor
    * @param max - øvre grensevektor

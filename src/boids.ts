@@ -1,4 +1,3 @@
-import type { Parameters } from "./parameters";
 import { Vector2 } from "./utils/vector2";
 import type { World } from "./world";
 
@@ -7,10 +6,9 @@ export interface Boid {
   velocity: Vector2;
 }
 
-/** Beregner de totale kreftene som virker på en boid basert på naboer og omgivelser.\
- * Denne metoden er ferdig! Du trenger ikke å endre noe her.
- */
+/** Beregner de totale kreftene som virker på en boid basert på naboer og omgivelser.*/
 export function calculateBoidForces(boid: Boid, world: World): Vector2 {
+  /** Denne metoden er ferdig implementert! */
   const neighbors = world.collection.getNeighbors(boid);
   const parameters = world.parameters.value;
 

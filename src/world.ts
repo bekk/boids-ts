@@ -2,7 +2,6 @@ import { NaiveBoidCollection, type BoidCollection } from "./boidCollection";
 import { calculateBoidForces, type Boid } from "./boids";
 import { PersistedParameters } from "./parameters";
 import { Predator } from "./predator";
-import { clamp } from "./utils/math";
 import { Vector2 } from "./utils/vector2";
 
 export class World {
@@ -51,37 +50,31 @@ export class World {
       return;
     }
 
+    // vi oppdaterer predators først, slik at boids kan reagere på nye posisjoner i samme frame
     this.predators.forEach((predator) => {
       predator.update(deltaTime);
     });
 
-    /*
+    /* 
     For hver boid gjøres følgende:
       1. beregn krefter basert på naboer og parametere
       2. oppdater hastighet basert på krefter og deltaTime
-      3. oppdater posisjon basert på hastighet
-     */
+      3. oppdater posisjon basert på hastighet og deltaTime
 
-    /* Beregn krefter og oppdater hastighet
-    Vi kan trygt gjøre dette i samme løkke, fordi ingen krefter er påvirket av boid.velocity
-
-    boid.position må oppdateres i egen løkke, for å unngå at boids leser av nye posisjoner fra naboene sine*/
+      I denne første loopen beregner vi krefter og oppdaterer hastigheter.
+      Posisjoner må oppdateres etter at alle hastigheter er oppdatert, ellers man lese av delvis nye posisjoner.
+    */
     this.boids.forEach((boid) => {
       const force = calculateBoidForces(boid, this);
 
       boid.velocity = boid.velocity.add(force.mul(deltaTime));
-
-      // sett lengden av velocity til å være mellom minSpeed og maxSpeed etter å ha lagt til kraften
-      const speed = boid.velocity.length();
-      const maxSpeed = this.parameters.value.maxSpeed;
-      const desiredSpeed = clamp(
-        speed,
+      boid.velocity = boid.velocity.clampLength(
         this.parameters.value.minSpeed,
-        maxSpeed
+        this.parameters.value.maxSpeed
       );
-      boid.velocity = boid.velocity.withLength(desiredSpeed);
     });
 
+    // oppdater posisjoner
     this.boids.forEach((boid) => {
       boid.position = boid.position
         .add(boid.velocity.mul(deltaTime))
