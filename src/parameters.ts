@@ -8,6 +8,7 @@ export interface Parameters {
   mouseAttractionWeight: number;
   neighborRadius: number;
   collisionRadius: number;
+  predatorRadius: number;
   mouseRadius: number;
   maxSpeed: number;
   minSpeed: number;
@@ -32,6 +33,7 @@ const defaultParameters: Parameters = {
   globalForceMultiplier: 2_000,
   neighborRadius: 50,
   collisionRadius: 45,
+  predatorRadius: 100,
   mouseRadius: 100,
   minSpeed: 100,
   maxSpeed: 300,

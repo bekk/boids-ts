@@ -24,7 +24,7 @@ export function calculateBoidForces(boid: Boid, world: World): Vector2 {
       predatorAvoidanceForce(
         boid,
         world.predators,
-        parameters.neighborRadius
+        parameters.predatorRadius
       ).mul(parameters.predatorAvoidanceWeight)
     )
     .add(

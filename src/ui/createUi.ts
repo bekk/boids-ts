@@ -15,6 +15,7 @@ export function createUi(parameters: PersistedParameters) {
   // minVerdi på radius må være større enn 0 for å unngå deling på 0
   factory.create("Neighbor radius", 5, 100, 5, "neighborRadius");
   factory.create("Collision radius", 5, 100, 5, "collisionRadius");
+  factory.create("Predator radius", 10, 200, 10, "predatorRadius");
 
   factory.createColumn();
   factory.create("Separation weight", 0, 5, 0.1, "separationWeight");
